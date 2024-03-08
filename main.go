@@ -11,7 +11,7 @@ import (
 func init() {
 	initializers.LoadEnvVariables()
 	initializers.Migration()
-	initializers.SeedData()
+	// initializers.SeedData()
 }
 func main() {
 	r := routes.SetupRouter()
