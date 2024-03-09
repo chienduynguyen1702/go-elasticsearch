@@ -15,29 +15,6 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/helloworld": {
-            "get": {
-                "description": "do hello world ping",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "HelloWorld"
-                ],
-                "summary": "hello world",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
         "/student/list": {
             "get": {
                 "description": "Get all students",
@@ -49,6 +26,28 @@ const docTemplate = `{
                 ],
                 "tags": [
                     "Student"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "json"
+                        }
+                    }
+                }
+            }
+        },
+        "/subject/list": {
+            "get": {
+                "description": "Get all Subject",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Subject"
                 ],
                 "responses": {
                     "200": {

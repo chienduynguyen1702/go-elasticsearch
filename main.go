@@ -12,9 +12,11 @@ import (
 func init() {
 	initializers.LoadEnvVariables()
 	es := initializers.NewConnection()
-	controller.SetupElasticsearch(es)
 	initializers.Migration(es)
+	initializers.ConfigSwagger()
 	// initializers.SeedData(es)
+
+	controller.SetupElasticsearch(es)
 }
 func main() {
 	r := routes.SetupRouter()

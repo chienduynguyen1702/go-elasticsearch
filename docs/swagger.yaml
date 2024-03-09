@@ -1,21 +1,6 @@
 info:
   contact: {}
 paths:
-  /helloworld:
-    get:
-      consumes:
-      - application/json
-      description: do hello world ping
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            type: string
-      summary: hello world
-      tags:
-      - HelloWorld
   /student/list:
     get:
       consumes:
@@ -30,4 +15,18 @@ paths:
             type: json
       tags:
       - Student
+  /subject/list:
+    get:
+      consumes:
+      - application/json
+      description: Get all Subject
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+      tags:
+      - Subject
 swagger: "2.0"
