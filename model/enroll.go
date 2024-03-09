@@ -1,13 +1,13 @@
 package model
 
 type Enroll struct {
-	EnrollID     string     `json:"enroll_id"`
-	Students     []Student  `json:"students"`
-	Subject      Subject    `json:"subject"`
-	Lecturers    []Lecturer `json:"lecturers"`
-	MidtermGrade float64    `json:"midterm_grade"`
-	FinalGrade   float64    `json:"final_grade"`
-	Semester     string     `json:"semester"`
+	EnrollID     string   `json:"enroll_id"`
+	Students     Student  `json:"student"`
+	Subject      Subject  `json:"subject"`
+	Lecturers    Lecturer `json:"lecturer"`
+	MidtermGrade float64  `json:"midterm_grade"`
+	FinalGrade   float64  `json:"final_grade"`
+	Semester     string   `json:"semester"`
 }
 
 // GetID returns the ID of the Enroll.

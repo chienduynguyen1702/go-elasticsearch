@@ -10,8 +10,9 @@ import (
 
 func init() {
 	initializers.LoadEnvVariables()
-	initializers.Migration()
-	// initializers.SeedData()
+	es := initializers.NewConnection()
+	initializers.Migration(es)
+	// initializers.SeedData(es)
 }
 func main() {
 	r := routes.SetupRouter()

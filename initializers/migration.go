@@ -2,28 +2,15 @@ package initializers
 
 import (
 	"log"
-	"os"
 	"strings"
 
 	"github.com/elastic/go-elasticsearch/v8"
 )
 
-func Migration() {
-	// Es config
-	cfg := elasticsearch.Config{
-		CloudID: os.Getenv("CLOUD_ID"),
-		APIKey:  os.Getenv("API_KEY"),
-	}
+func Migration(es *elasticsearch.Client) {
 
-	// Connect to Elasticsearch
-	es, err := elasticsearch.NewClient(cfg)
-	if err != nil {
-		log.Fatalf("Error creating the Elasticsearch client: %s", err)
-	}
-
-	log.Printf("Sucessful created the Elasticsearch client")
 	// Create index and mapping for Student
-	createIndexMapping(es, "student_index", `
+	createIndexMapping(es, "vcs_be_go_es_student", `
 	{
 		"mappings": {
 			"properties": {
@@ -35,7 +22,7 @@ func Migration() {
 	`)
 
 	// Create index and mapping for Subject
-	createIndexMapping(es, "subject_index", `
+	createIndexMapping(es, "vcs_be_go_es_subject", `
 	{
 		"mappings": {
 			"properties": {
@@ -47,7 +34,7 @@ func Migration() {
 	`)
 
 	// Create index and mapping for Lecturer
-	createIndexMapping(es, "lecturer_index", `
+	createIndexMapping(es, "vcs_be_go_es_lecturer", `
 	{
 		"mappings": {
 			"properties": {
@@ -59,7 +46,7 @@ func Migration() {
 	`)
 
 	// Create index and mapping for Enroll
-	createIndexMapping(es, "enroll_index", `
+	createIndexMapping(es, "vcs_be_go_es_enroll", `
 	{
 		"mappings": {
 			"properties": {
