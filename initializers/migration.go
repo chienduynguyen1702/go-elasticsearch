@@ -3,6 +3,7 @@ package initializers
 import (
 	"log"
 	"strings"
+	"vcs_backend/go-elasticsearch/constraint"
 
 	"github.com/elastic/go-elasticsearch/v8"
 )
@@ -10,7 +11,7 @@ import (
 func Migration(es *elasticsearch.Client) {
 
 	// Create index and mapping for Student
-	createIndexMapping(es, "vcs_be_go_es_student", `
+	createIndexMapping(es, constraint.IndexNameOfStudent, `
 	{
 		"mappings": {
 			"properties": {
@@ -22,7 +23,7 @@ func Migration(es *elasticsearch.Client) {
 	`)
 
 	// Create index and mapping for Subject
-	createIndexMapping(es, "vcs_be_go_es_subject", `
+	createIndexMapping(es, constraint.IndexNameOfSubject, `
 	{
 		"mappings": {
 			"properties": {
@@ -34,7 +35,7 @@ func Migration(es *elasticsearch.Client) {
 	`)
 
 	// Create index and mapping for Lecturer
-	createIndexMapping(es, "vcs_be_go_es_lecturer", `
+	createIndexMapping(es, constraint.IndexNameOfLecturer, `
 	{
 		"mappings": {
 			"properties": {
@@ -46,7 +47,7 @@ func Migration(es *elasticsearch.Client) {
 	`)
 
 	// Create index and mapping for Enroll
-	createIndexMapping(es, "vcs_be_go_es_enroll", `
+	createIndexMapping(es, constraint.IndexNameOfEnroll, `
 	{
 		"mappings": {
 			"properties": {

@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 	"strings"
+	"vcs_backend/go-elasticsearch/controller"
 	"vcs_backend/go-elasticsearch/initializers"
 	routes "vcs_backend/go-elasticsearch/routes"
 )
@@ -11,6 +12,7 @@ import (
 func init() {
 	initializers.LoadEnvVariables()
 	es := initializers.NewConnection()
+	controller.SetupElasticsearch(es)
 	initializers.Migration(es)
 	// initializers.SeedData(es)
 }

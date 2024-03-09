@@ -16,4 +16,18 @@ paths:
       summary: hello world
       tags:
       - HelloWorld
+  /student/list:
+    get:
+      consumes:
+      - application/json
+      description: Get all students
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+      tags:
+      - Student
 swagger: "2.0"

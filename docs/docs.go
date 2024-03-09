@@ -37,6 +37,28 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/student/list": {
+            "get": {
+                "description": "Get all students",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Student"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "json"
+                        }
+                    }
+                }
+            }
         }
     }
 }`

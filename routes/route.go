@@ -31,12 +31,17 @@ func SetupRouter() *gin.Engine {
 	v1 := r.Group("/api/v1")
 	{
 
-		docs.SwaggerInfo.BasePath = "/api/v1"
 		enroll.SetupRouter(v1)
 		lecturer.SetupRouter(v1)
 		student.SetupRouter(v1)
 		subject.SetupRouter(v1)
 	}
+	docs.SwaggerInfo.BasePath = "/api/v1"
+	docs.SwaggerInfo.Schemes = []string{"http", "https"}
+	docs.SwaggerInfo.Host = os.Getenv("HOST")
+	docs.SwaggerInfo.Title = "VCS Backend"
+	docs.SwaggerInfo.Version = "1.0"
+	docs.SwaggerInfo.Description = "VCS Backend Go-Elasticsearch API"
 	v1.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	v1.GET("/helloworld", controller.HelloWorld)
 	return r
