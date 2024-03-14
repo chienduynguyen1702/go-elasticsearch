@@ -21,7 +21,7 @@ import (
 //	@Tags			Subject
 //	@Accept			json
 //	@Produce		json
-//	@Success		200	{json}	list of Subjects
+//	@Success		200	{array}	model.Subject
 //	@Router			/subject/list [get]
 func ListSubject(g *gin.Context) {
 	var subjects []model.Subject

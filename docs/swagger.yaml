@@ -1,6 +1,87 @@
+definitions:
+  model.Lecturer:
+    properties:
+      lecturer_id:
+        type: string
+      lecturer_name:
+        type: string
+    type: object
+  model.Student:
+    properties:
+      student_id:
+        type: string
+      student_name:
+        type: string
+      year_started:
+        type: integer
+    type: object
+  model.Subject:
+    properties:
+      subject_id:
+        type: string
+      subject_name:
+        type: string
+    type: object
 info:
   contact: {}
 paths:
+  /lecturer/list:
+    get:
+      consumes:
+      - application/json
+      description: Get all Lecturer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Lecturer'
+            type: array
+      tags:
+      - Lecturer
+  /student/create-student:
+    post:
+      consumes:
+      - application/json
+      description: Create a new student
+      parameters:
+      - description: Student object
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.Student'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Student created successfully
+          schema:
+            type: string
+      tags:
+      - Student
+  /student/delete-student/{student_id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a student
+      parameters:
+      - description: Student ID
+        in: path
+        name: student_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Student deleted successfully
+          schema:
+            type: string
+      tags:
+      - Student
   /student/list:
     get:
       consumes:
@@ -12,7 +93,9 @@ paths:
         "200":
           description: OK
           schema:
-            type: json
+            items:
+              $ref: '#/definitions/model.Student'
+            type: array
       tags:
       - Student
   /subject/list:
@@ -26,7 +109,9 @@ paths:
         "200":
           description: OK
           schema:
-            type: json
+            items:
+              $ref: '#/definitions/model.Subject'
+            type: array
       tags:
       - Subject
 swagger: "2.0"

@@ -15,8 +15,8 @@ func SetupRouter(r *gin.RouterGroup) {
 
 		student.GET("/list", sc.ListStudent)
 
-		// student.POST("/create", sc.)
+		student.POST("/create-student", sc.CreateStudent)
 		// student.PUT("/update", UpdateStudent)
-		// student.DELETE("/delete", DeleteStudent)
+		student.DELETE("/delete-student/:student_id", sc.DeleteStudent)
 	}
 }

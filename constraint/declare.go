@@ -10,4 +10,5 @@ var (
 	IndexNameOfLecturer = fmt.Sprintf("%s_lecturer", prefix)
 	IndexNameOfSubject  = fmt.Sprintf("%s_subject", prefix)
 	IndexNameOfEnroll   = fmt.Sprintf("%s_enroll", prefix)
+	QuerySize           = 100
 )
