@@ -305,7 +305,7 @@ func getDocumentIDOfSubject(subjectID string) (string, error) {
 
 	// Check if the response was successful (HTTP status 200)
 	if res.IsError() {
-		return "", fmt.Errorf("Failed to search document ID of the subject: %s", res.Status())
+		return "", fmt.Errorf("failed to search document ID of the subject: %s", res.Status())
 	}
 
 	// Decode the response body into a map
@@ -317,7 +317,7 @@ func getDocumentIDOfSubject(subjectID string) (string, error) {
 	// Extract hits from the result
 	hits, ok := result["hits"].(map[string]interface{})["hits"].([]interface{})
 	if !ok {
-		return "", fmt.Errorf("Invalid response")
+		return "", fmt.Errorf("invalid response")
 	}
 
 	// Iterate over hits and decode them into a Subject
@@ -325,5 +325,5 @@ func getDocumentIDOfSubject(subjectID string) (string, error) {
 		return hit.(map[string]interface{})["_id"].(string), nil
 	}
 
-	return "", fmt.Errorf("Subject not found")
+	return "", fmt.Errorf("subject not found")
 }

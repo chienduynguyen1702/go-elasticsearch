@@ -109,15 +109,18 @@ func GetStudentById(g *gin.Context) {
 		return
 	}
 
-	// Get document ID of the student
-	documentID, err := getDocumentIDOfStudent(studentID)
-	if err != nil {
-		g.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	// Fetch the student document from Elasticsearch
-	res, err := main.ElasticClient.Get(constraint.IndexNameOfStudent, documentID)
+	query := fmt.Sprintf(`
+		{
+			"query": {
+				"match": {
+					"student_id": "%s"
+				}
+			}
+		}`, studentID)
+	res, err := main.ElasticClient.Search(
+		main.ElasticClient.Search.WithIndex(constraint.IndexNameOfStudent),
+		main.ElasticClient.Search.WithBody(strings.NewReader(query)),
+	)
 	if err != nil {
 		g.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -131,12 +134,28 @@ func GetStudentById(g *gin.Context) {
 	}
 
 	// Decode the response body to get the student
-	var student model.Student
-	if err := json.NewDecoder(res.Body).Decode(&student); err != nil {
+	var result map[string]interface{}
+	if err := json.NewDecoder(res.Body).Decode(&result); err != nil {
 		g.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
+	hits := result["hits"].(map[string]interface{})["hits"].([]interface{})
+	if len(hits) == 0 {
+		g.JSON(http.StatusBadRequest, gin.H{"error": "Student not found"})
+		return
+	}
+
+	// Extract the first hit
+	source := hits[0].(map[string]interface{})["_source"].(map[string]interface{})
+
+	// Create a Student instance
+	student := model.Student{
+		StudentID:   source["student_id"].(string),
+		StudentName: source["student_name"].(string),
+		YearStarted: int(source["year_started"].(float64)),
+		// Add other fields as needed
+	}
 	// Return the student
 	g.JSON(http.StatusOK, student)
 }
