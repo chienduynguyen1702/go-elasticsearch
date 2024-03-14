@@ -193,3 +193,91 @@ func DeleteStudent(g *gin.Context) {
 
 	g.JSON(http.StatusOK, "Student deleted successfully")
 }
+
+//	@BasePath	/api/v1/
+//
+// Student godoc
+//
+//	@Summary
+//	@Schemes
+//	@Description	Update a student
+//	@Tags			Student
+//	@Accept			json
+//
+//	@Param			student_id		path	string	true	"Student ID"
+//	@Param			body			body	model.Student	true	"Student object"
+//
+//	@Produce		json
+//	@Success		200	{string} string "Student updated successfully"
+//	@Router			/student/update-student/{student_id} [put]
+func UpdateStudent(g *gin.Context) {
+	studentID := g.Param("student_id")
+	if studentID == "" {
+		g.JSON(http.StatusBadRequest, gin.H{"error": "Student ID is required"})
+		return
+	}
+
+	// get body of request
+	data, _ := g.GetRawData()
+	// log.Println("data body:\n", string(data))
+
+	// do search to check if student exists
+	query := fmt.Sprintf(`
+		{
+			"size": %d,
+			"query": {
+				"match": {
+					"student_id": "%s"
+				}
+			}
+		}`, constraint.QuerySize, studentID)
+	res, err := main.ElasticClient.Search(
+		main.ElasticClient.Search.WithIndex(constraint.IndexNameOfStudent),
+		main.ElasticClient.Search.WithBody(strings.NewReader(query)),
+	)
+	if err != nil {
+		g.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	defer res.Body.Close()
+
+	// Check if the response was successful (HTTP status 200)
+	if res.IsError() {
+		g.JSON(res.StatusCode, gin.H{"error": res.Status()})
+		return
+	}
+
+	//get document id of studentID
+	var result map[string]interface{}
+	if err := json.NewDecoder(res.Body).Decode(&result); err != nil {
+		g.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	// Extract hits from the result
+	hits, ok := result["hits"].(map[string]interface{})["hits"].([]interface{})
+	if !ok {
+		g.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse hits"})
+		return
+	}
+	if len(hits) == 0 {
+		g.JSON(http.StatusBadRequest, gin.H{"error": "Student not found"})
+		return
+	}
+	// Extract documents from hits
+	documentID := hits[0].(map[string]interface{})["_id"].(string)
+	log.Println("documentID: ", documentID)
+
+	// Update a Student
+	_, err = main.ElasticClient.Update(
+		constraint.IndexNameOfStudent,
+		documentID,
+		bytes.NewReader(data),
+	)
+
+	if err != nil {
+		g.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	g.JSON(http.StatusOK, "Student updated successfully")
+}

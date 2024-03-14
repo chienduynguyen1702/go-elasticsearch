@@ -18,5 +18,6 @@ func SetupRouter(r *gin.RouterGroup) {
 		student.POST("/create-student", sc.CreateStudent)
 		// student.PUT("/update", UpdateStudent)
 		student.DELETE("/delete-student/:student_id", sc.DeleteStudent)
+		student.PUT("/update-student/:student_id", sc.UpdateStudent)
 	}
 }

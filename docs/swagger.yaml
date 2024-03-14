@@ -98,6 +98,32 @@ paths:
             type: array
       tags:
       - Student
+  /student/update-student/{student_id}:
+    put:
+      consumes:
+      - application/json
+      description: Update a student
+      parameters:
+      - description: Student ID
+        in: path
+        name: student_id
+        required: true
+        type: string
+      - description: Student object
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.Student'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Student updated successfully
+          schema:
+            type: string
+      tags:
+      - Student
   /subject/list:
     get:
       consumes:
