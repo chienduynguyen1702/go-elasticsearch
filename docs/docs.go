@@ -40,7 +40,30 @@ const docTemplate = `{
                 }
             }
         },
-        "/student/create-student": {
+        "/student/": {
+            "get": {
+                "description": "Get all students",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Student"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.Student"
+                            }
+                        }
+                    }
+                }
+            },
             "post": {
                 "description": "Create a new student",
                 "consumes": [
@@ -73,9 +96,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/student/delete-student/{student_id}": {
-            "delete": {
-                "description": "Delete a student",
+        "/student/{student_id}": {
+            "get": {
+                "description": "Get a student",
                 "consumes": [
                     "application/json"
                 ],
@@ -96,40 +119,13 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Student deleted successfully",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/student/list": {
-            "get": {
-                "description": "Get all students",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Student"
-                ],
-                "responses": {
-                    "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/model.Student"
-                            }
+                            "$ref": "#/definitions/model.Student"
                         }
                     }
                 }
-            }
-        },
-        "/student/update-student/{student_id}": {
+            },
             "put": {
                 "description": "Update a student",
                 "consumes": [
@@ -162,6 +158,35 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "Student updated successfully",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete a student",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Student"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Student ID",
+                        "name": "student_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Student deleted successfully",
                         "schema": {
                             "type": "string"
                         }

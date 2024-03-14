@@ -13,11 +13,11 @@ func SetupRouter(r *gin.RouterGroup) {
 	student := r.Group("/student")
 	{
 
-		student.GET("/list", sc.ListStudent)
+		student.GET("/", sc.ListStudent)
+		student.POST("/", sc.CreateStudent)
 
-		student.POST("/create-student", sc.CreateStudent)
-		// student.PUT("/update", UpdateStudent)
-		student.DELETE("/delete-student/:student_id", sc.DeleteStudent)
-		student.PUT("/update-student/:student_id", sc.UpdateStudent)
+		student.GET("/:student_id", sc.GetStudent)
+		student.DELETE("/:student_id", sc.DeleteStudent)
+		student.PUT("/:student_id", sc.UpdateStudent)
 	}
 }
