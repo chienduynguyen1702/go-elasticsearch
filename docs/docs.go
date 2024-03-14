@@ -98,7 +98,7 @@ const docTemplate = `{
         },
         "/student/{student_id}": {
             "get": {
-                "description": "Get a student",
+                "description": "Get student by ID",
                 "consumes": [
                     "application/json"
                 ],
@@ -127,7 +127,7 @@ const docTemplate = `{
                 }
             },
             "put": {
-                "description": "Update a student",
+                "description": "Update student by ID",
                 "consumes": [
                     "application/json"
                 ],
@@ -165,7 +165,7 @@ const docTemplate = `{
                 }
             },
             "delete": {
-                "description": "Delete a student",
+                "description": "Delete student by ID",
                 "consumes": [
                     "application/json"
                 ],
@@ -194,7 +194,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/subject/list": {
+        "/subject/": {
             "get": {
                 "description": "Get all Subject",
                 "consumes": [
@@ -214,6 +214,135 @@ const docTemplate = `{
                             "items": {
                                 "$ref": "#/definitions/model.Subject"
                             }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create a new subject",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Subject"
+                ],
+                "parameters": [
+                    {
+                        "description": "Subject object that needs to be added",
+                        "name": "subject",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.Subject"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Subject created successfully",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/subject/{subject_id}": {
+            "get": {
+                "description": "Get subject by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Subject"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Subject ID",
+                        "name": "subject_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Subject"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update subject by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Subject"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Subject ID",
+                        "name": "subject_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Subject object that needs to be updated",
+                        "name": "subject",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.Subject"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Subject updated successfully",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete subject by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Subject"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Subject ID",
+                        "name": "subject_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Subject deleted successfully",
+                        "schema": {
+                            "type": "string"
                         }
                     }
                 }

@@ -102,25 +102,22 @@ func ListStudent(g *gin.Context) {
 //	@Produce		json
 //	@Success		200	{object} model.Student
 //	@Router			/student/{student_id} [get]
-func GetStudent(g *gin.Context) {
+func GetStudentById(g *gin.Context) {
 	studentID := g.Param("student_id")
 	if studentID == "" {
 		g.JSON(http.StatusBadRequest, gin.H{"error": "Student ID is required"})
 		return
 	}
 
-	query := fmt.Sprintf(`
-		{
-			"query": {
-				"match": {
-					"student_id": "%s"
-				}
-			}
-		}`, studentID)
-	res, err := main.ElasticClient.Search(
-		main.ElasticClient.Search.WithIndex(constraint.IndexNameOfStudent),
-		main.ElasticClient.Search.WithBody(strings.NewReader(query)),
-	)
+	// Get document ID of the student
+	documentID, err := getDocumentIDOfStudent(studentID)
+	if err != nil {
+		g.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Fetch the student document from Elasticsearch
+	res, err := main.ElasticClient.Get(constraint.IndexNameOfStudent, documentID)
 	if err != nil {
 		g.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -134,34 +131,15 @@ func GetStudent(g *gin.Context) {
 	}
 
 	// Decode the response body to get the student
-	var result map[string]interface{}
-	if err := json.NewDecoder(res.Body).Decode(&result); err != nil {
+	var student model.Student
+	if err := json.NewDecoder(res.Body).Decode(&student); err != nil {
 		g.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
-	}
-
-	hits := result["hits"].(map[string]interface{})["hits"].([]interface{})
-	if len(hits) == 0 {
-		g.JSON(http.StatusBadRequest, gin.H{"error": "Student not found"})
-		return
-	}
-
-	// Extract the first hit
-	source := hits[0].(map[string]interface{})["_source"].(map[string]interface{})
-
-	// Create a Student instance
-	student := model.Student{
-		StudentID:   source["student_id"].(string),
-		StudentName: source["student_name"].(string),
-		YearStarted: int(source["year_started"].(float64)),
-		// Add other fields as needed
 	}
 
 	// Return the student
 	g.JSON(http.StatusOK, student)
 }
-
-
 
 //	@BasePath	/api/v1/
 //
@@ -181,7 +159,7 @@ func GetStudent(g *gin.Context) {
 func CreateStudent(g *gin.Context) {
 	// get body of request
 	data, _ := g.GetRawData()
-	log.Println("data body:\n", string(data))
+	// log.Println("data body:\n", string(data))
 
 	// Create a new Student
 	_, err := main.ElasticClient.Index(constraint.IndexNameOfStudent, bytes.NewReader(data))
@@ -191,7 +169,7 @@ func CreateStudent(g *gin.Context) {
 		return
 	}
 
-	g.JSON(http.StatusOK, "Student created successfully")
+	g.JSON(http.StatusCreated, "Student created successfully")
 }
 
 //	@BasePath	/api/v1/
@@ -209,60 +187,22 @@ func CreateStudent(g *gin.Context) {
 //	@Produce		json
 //	@Success		200	{string} string "Student deleted successfully"
 //	@Router			/student/{student_id} [delete]
-func DeleteStudent(g *gin.Context) {
+func DeleteStudentById(g *gin.Context) {
 	studentID := g.Param("student_id")
 	if studentID == "" {
 		g.JSON(http.StatusBadRequest, gin.H{"error": "Student ID is required"})
 		return
 	}
-	// do search to check if student exists
-	query := fmt.Sprintf(`
 
-		{
-			"query": {
-				"match": {
-					"student_id": "%s"
-				}
-			}
-		}`, studentID)
-	res, err := main.ElasticClient.Search(
-		main.ElasticClient.Search.WithIndex(constraint.IndexNameOfStudent),
-		main.ElasticClient.Search.WithBody(strings.NewReader(query)),
-	)
+	// Get document ID of the student
+	documentID, err := getDocumentIDOfStudent(studentID)
 	if err != nil {
-		g.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-	defer res.Body.Close()
-
-	// Check if the response was successful (HTTP status 200)
-	if res.IsError() {
-		g.JSON(res.StatusCode, gin.H{"error": res.Status()})
+		g.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	//get document id of studentID
-	var result map[string]interface{}
-	if err := json.NewDecoder(res.Body).Decode(&result); err != nil {
-		g.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-	// Extract hits from the result
-	hits, ok := result["hits"].(map[string]interface{})["hits"].([]interface{})
-	if !ok {
-		g.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse hits"})
-		return
-	}
-	if len(hits) == 0 {
-		g.JSON(http.StatusBadRequest, gin.H{"error": "Student not found"})
-		return
-	}
-	// Extract documents from hits
-	documentID := hits[0].(map[string]interface{})["_id"].(string)
-
-	// Delete a Student
+	// Delete the student document
 	_, err = main.ElasticClient.Delete(constraint.IndexNameOfStudent, documentID)
-
 	if err != nil {
 		g.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -287,7 +227,7 @@ func DeleteStudent(g *gin.Context) {
 //	@Produce		json
 //	@Success		200	{string} string "Student updated successfully"
 //	@Router			/student/{student_id} [put]
-func UpdateStudent(g *gin.Context) {
+func UpdateStudentById(g *gin.Context) {
 	studentID := g.Param("student_id")
 	if studentID == "" {
 		g.JSON(http.StatusBadRequest, gin.H{"error": "Student ID is required"})
@@ -310,58 +250,24 @@ func UpdateStudent(g *gin.Context) {
 		return
 	}
 
-	// do search to check if student exists
-	query := fmt.Sprintf(`
-		{
-			// "size": %d,
-			"query": {
-				"match": {
-					"student_id": "%s"
-				}
-			}
-		}`, constraint.QuerySize, studentID)
-	res, err := main.ElasticClient.Search(
-		main.ElasticClient.Search.WithIndex(constraint.IndexNameOfStudent),
-		main.ElasticClient.Search.WithBody(strings.NewReader(query)),
-	)
+	// Get document ID of the student
+	documentID, err := getDocumentIDOfStudent(studentID)
 	if err != nil {
-		g.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-	defer res.Body.Close()
-
-	// Check if the response was successful (HTTP status 200)
-	if res.IsError() {
-		g.JSON(res.StatusCode, gin.H{"error": res.Status()})
+		g.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	// Decode the response to get the document ID
-	var searchResult map[string]interface{}
-	if err := json.NewDecoder(res.Body).Decode(&searchResult); err != nil {
-		g.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	hits := searchResult["hits"].(map[string]interface{})["hits"].([]interface{})
-	if len(hits) == 0 {
-		g.JSON(http.StatusBadRequest, gin.H{"error": "Student not found"})
-		return
-	}
-
-	// Extract the document ID of the first hit
-	documentID := hits[0].(map[string]interface{})["_id"].(string)
-	log.Println("documentID: ", documentID)
+	// Update student
 	script := fmt.Sprintf(`{
-		"script": {
-			"source": "ctx._source.student_name = '%s'; ctx._source.year_started = %d;",
-			"lang": "painless",
-			"params": {
-				"name": "%s",
-				"year": %d
-			}
-		}
-	}`, studentName, int(yearStarted), studentName, int(yearStarted))
+        "script": {
+            "source": "ctx._source.student_name = '%s'; ctx._source.year_started = %d;",
+            "lang": "painless",
+            "params": {
+                "name": "%s",
+                "year": %d
+            }
+        }
+    }`, studentName, int(yearStarted), studentName, int(yearStarted))
 
 	_, err = main.ElasticClient.Update(
 		constraint.IndexNameOfStudent,
@@ -378,4 +284,47 @@ func UpdateStudent(g *gin.Context) {
 	}
 
 	g.JSON(http.StatusOK, "Student updated successfully")
+}
+
+// getDocumentIDOfStudent retrieves the document ID of the student based on the student ID
+func getDocumentIDOfStudent(studentID string) (string, error) {
+	query := fmt.Sprintf(`
+        {
+            "query": {
+                "match": {
+                    "student_id": "%s"
+                }
+            }
+        }`, studentID)
+	res, err := main.ElasticClient.Search(
+		main.ElasticClient.Search.WithIndex(constraint.IndexNameOfStudent),
+		main.ElasticClient.Search.WithBody(strings.NewReader(query)),
+	)
+	if err != nil {
+		log.Println("Elasticsearch error: ", err)
+		return "", err
+	}
+	defer res.Body.Close()
+
+	// Check if the response was successful (HTTP status 200)
+	if res.IsError() {
+		log.Println("Elasticsearch error: ", res.Status())
+		return "", fmt.Errorf("Elasticsearch error: %s", res.Status())
+	}
+
+	// Decode the response body to get the student
+	var result map[string]interface{}
+	if err := json.NewDecoder(res.Body).Decode(&result); err != nil {
+		log.Println("Elasticsearch error: ", err)
+		return "", err
+	}
+
+	hits := result["hits"].(map[string]interface{})["hits"].([]interface{})
+	if len(hits) == 0 {
+		return "", fmt.Errorf("Student not found")
+	}
+
+	// Extract the document ID of the first hit
+	documentID := hits[0].(map[string]interface{})["_id"].(string)
+	return documentID, nil
 }

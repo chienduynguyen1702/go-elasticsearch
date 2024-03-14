@@ -81,7 +81,7 @@ paths:
     delete:
       consumes:
       - application/json
-      description: Delete a student
+      description: Delete student by ID
       parameters:
       - description: Student ID
         in: path
@@ -100,7 +100,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: Get a student
+      description: Get student by ID
       parameters:
       - description: Student ID
         in: path
@@ -119,7 +119,7 @@ paths:
     put:
       consumes:
       - application/json
-      description: Update a student
+      description: Update student by ID
       parameters:
       - description: Student ID
         in: path
@@ -141,7 +141,7 @@ paths:
             type: string
       tags:
       - Student
-  /subject/list:
+  /subject/:
     get:
       consumes:
       - application/json
@@ -155,6 +155,90 @@ paths:
             items:
               $ref: '#/definitions/model.Subject'
             type: array
+      tags:
+      - Subject
+    post:
+      consumes:
+      - application/json
+      description: Create a new subject
+      parameters:
+      - description: Subject object that needs to be added
+        in: body
+        name: subject
+        required: true
+        schema:
+          $ref: '#/definitions/model.Subject'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Subject created successfully
+          schema:
+            type: string
+      tags:
+      - Subject
+  /subject/{subject_id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete subject by ID
+      parameters:
+      - description: Subject ID
+        in: path
+        name: subject_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Subject deleted successfully
+          schema:
+            type: string
+      tags:
+      - Subject
+    get:
+      consumes:
+      - application/json
+      description: Get subject by ID
+      parameters:
+      - description: Subject ID
+        in: path
+        name: subject_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Subject'
+      tags:
+      - Subject
+    put:
+      consumes:
+      - application/json
+      description: Update subject by ID
+      parameters:
+      - description: Subject ID
+        in: path
+        name: subject_id
+        required: true
+        type: string
+      - description: Subject object that needs to be updated
+        in: body
+        name: subject
+        required: true
+        schema:
+          $ref: '#/definitions/model.Subject'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Subject updated successfully
+          schema:
+            type: string
       tags:
       - Subject
 swagger: "2.0"

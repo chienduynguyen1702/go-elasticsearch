@@ -13,11 +13,13 @@ func SetupRouter(r *gin.RouterGroup) {
 	subject := r.Group("/subject")
 	{
 
-		subject.GET("/list", sc.ListSubject)
+		subject.GET("/", sc.ListSubject)
+		subject.POST("/", sc.CreateSubject)
 
-		// subject.POST("/create", sc.)
-		// subject.PUT("/update", UpdateSubject)
-		// subject.DELETE("/delete", DeleteSubject)
+		subject.GET("/:subject_id", sc.GetSubjectById)
+		subject.DELETE("/:subject_id", sc.DeleteSubjectById)
+		subject.PUT("/:subject_id", sc.UpdateSubjectById)
+
 	}
 
 }
