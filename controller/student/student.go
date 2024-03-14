@@ -2,6 +2,7 @@ package student
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -217,14 +218,26 @@ func UpdateStudent(g *gin.Context) {
 		return
 	}
 
-	// get body of request
-	data, _ := g.GetRawData()
-	// log.Println("data body:\n", string(data))
+	// Parse request body
+	var requestBody map[string]interface{}
+	if err := g.BindJSON(&requestBody); err != nil {
+		g.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request payload"})
+		return
+	}
+
+	// Extract student_name and year_started from request body
+	studentName, nameExists := requestBody["student_name"].(string)
+	yearStarted, yearExists := requestBody["year_started"].(float64)
+
+	if !nameExists || !yearExists {
+		g.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request payload: student_name and year_started are required"})
+		return
+	}
 
 	// do search to check if student exists
 	query := fmt.Sprintf(`
 		{
-			"size": %d,
+			// "size": %d,
 			"query": {
 				"match": {
 					"student_id": "%s"
@@ -247,35 +260,44 @@ func UpdateStudent(g *gin.Context) {
 		return
 	}
 
-	//get document id of studentID
-	var result map[string]interface{}
-	if err := json.NewDecoder(res.Body).Decode(&result); err != nil {
+	// Decode the response to get the document ID
+	var searchResult map[string]interface{}
+	if err := json.NewDecoder(res.Body).Decode(&searchResult); err != nil {
 		g.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	// Extract hits from the result
-	hits, ok := result["hits"].(map[string]interface{})["hits"].([]interface{})
-	if !ok {
-		g.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse hits"})
-		return
-	}
+
+	hits := searchResult["hits"].(map[string]interface{})["hits"].([]interface{})
 	if len(hits) == 0 {
 		g.JSON(http.StatusBadRequest, gin.H{"error": "Student not found"})
 		return
 	}
-	// Extract documents from hits
+
+	// Extract the document ID of the first hit
 	documentID := hits[0].(map[string]interface{})["_id"].(string)
 	log.Println("documentID: ", documentID)
+	script := fmt.Sprintf(`{
+		"script": {
+			"source": "ctx._source.student_name = '%s'; ctx._source.year_started = %d;",
+			"lang": "painless",
+			"params": {
+				"name": "%s",
+				"year": %d
+			}
+		}
+	}`, studentName, int(yearStarted), studentName, int(yearStarted))
 
-	// Update a Student
 	_, err = main.ElasticClient.Update(
 		constraint.IndexNameOfStudent,
 		documentID,
-		bytes.NewReader(data),
+		strings.NewReader(script),
+		main.ElasticClient.Update.WithContext(context.Background()), // Context should be provided
+		main.ElasticClient.Update.WithRetryOnConflict(3),            // Optional: Number of retries on conflict
 	)
 
 	if err != nil {
 		g.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		log.Println("Elasticsearch error: ", err)
 		return
 	}
 
