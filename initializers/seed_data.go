@@ -15,6 +15,7 @@ func SeedData(es *elasticsearch.Client) {
 
 	// Index the data to elasticsearch
 	// Index student data
+	log.Println("Indexing Student documents to elasticsearch ...")
 	for _, student := range ListOfStudent {
 		if err := indexStudentData(es, student); err != nil {
 			log.Fatal(err)
@@ -22,6 +23,7 @@ func SeedData(es *elasticsearch.Client) {
 	}
 	fmt.Println("Student data has been indexed")
 	// Index lecturer data
+	log.Println("Indexing lecturer documents to elasticsearch ...")
 	for _, lecturer := range ListOfLecturer {
 		if err := indexLecturerData(es, lecturer); err != nil {
 			log.Fatal(err)
@@ -29,6 +31,7 @@ func SeedData(es *elasticsearch.Client) {
 	}
 	fmt.Println("Lecturer data has been indexed")
 	// Index subject data
+	log.Println("Indexing subject documents to elasticsearch ...")
 	for _, subject := range ListOfSubject {
 		if err := indexSubjectData(es, subject); err != nil {
 			log.Fatal(err)
@@ -49,6 +52,7 @@ func SeedData(es *elasticsearch.Client) {
 		NumberOfStudentEachSubject)
 
 	// print the ListOfEnroll data
+	log.Println("Indexing enroll documents to elasticsearch ...")
 	for _, enroll := range ListOfEnroll {
 
 		if err := indexEnrollData(es, enroll); err != nil {
