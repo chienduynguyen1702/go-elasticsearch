@@ -15,7 +15,7 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/lecturer/list": {
+        "/lecturer": {
             "get": {
                 "description": "Get all Lecturer",
                 "consumes": [
@@ -35,6 +35,37 @@ const docTemplate = `{
                             "items": {
                                 "$ref": "#/definitions/model.Lecturer"
                             }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Get all Lecturer",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Lecturer"
+                ],
+                "parameters": [
+                    {
+                        "description": "Lecturer information",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.Lecturer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Lecturer created successfully",
+                        "schema": {
+                            "type": "string"
                         }
                     }
                 }

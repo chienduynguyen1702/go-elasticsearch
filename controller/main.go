@@ -11,3 +11,7 @@ var (
 func SetupElasticsearch(es *elasticsearch.Client) {
 	ElasticClient = es
 }
+
+// func getDocumentIdByIndex(indexName string, modelId string) (string, error) {
+
+// }

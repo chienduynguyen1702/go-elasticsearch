@@ -22,8 +22,8 @@ import (
 //	@Tags			Lecturer
 //	@Accept			json
 //	@Produce		json
-//	@Success		200	{array} model.Lecturer
-//	@Router			/lecturer/list [get]
+//	@Success		200	{array}	model.Lecturer
+//	@Router			/lecturer [get]
 func ListLecturer(g *gin.Context) {
 	var lecturers []model.Lecturer
 
@@ -80,4 +80,40 @@ func ListLecturer(g *gin.Context) {
 	}
 
 	g.JSON(http.StatusOK, lecturers)
+}
+
+//	@BasePath	/api/v1/
+//
+// Lecturer godoc
+//
+//	@Summary
+//	@Schemes
+//	@Description	Get all Lecturer
+//	@Tags			Lecturer
+//	@Accept			json
+//
+//	@Param			body	body	model.Lecturer	true	"Lecturer information"
+//
+//	@Produce		json
+//	@Success		200	{string}	string	"Lecturer created successfully"
+//	@Router			/lecturer [post]
+func CreateLecturer(g *gin.Context) {
+	// get body of request
+	data, err := g.GetRawData()
+	if err != nil {
+		g.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	_, err = main.ElasticClient.Index(
+		constraint.IndexNameOfLecturer,
+		strings.NewReader(string(data)),
+	)
+
+	if err != nil {
+		g.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	g.String(http.StatusOK, "Lecturer created successfully")
 }

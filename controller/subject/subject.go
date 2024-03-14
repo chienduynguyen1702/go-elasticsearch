@@ -98,10 +98,10 @@ func ListSubject(g *gin.Context) {
 //	@Tags			Subject
 //	@Accept			json
 //
-//	@Param			subject			body	model.Subject	true	"Subject object that needs to be added"
+//	@Param			subject	body	model.Subject	true	"Subject object that needs to be added"
 //
 //	@Produce		json
-//	@Success		200	{string} string "Subject created successfully"
+//	@Success		200	{string}	string	"Subject created successfully"
 //	@Router			/subject/ [post]
 func CreateSubject(g *gin.Context) {
 	// get body of request
@@ -126,10 +126,10 @@ func CreateSubject(g *gin.Context) {
 //	@Tags			Subject
 //	@Accept			json
 //
-//	@Param			subject_id		path	string	true	"Subject ID"
+//	@Param			subject_id	path	string	true	"Subject ID"
 //
 //	@Produce		json
-//	@Success		200	{string} string "Subject deleted successfully"
+//	@Success		200	{string}	string	"Subject deleted successfully"
 //	@Router			/subject/{subject_id} [delete]
 func DeleteSubjectById(g *gin.Context) {
 	subjectID := g.Param("subject_id")
@@ -165,10 +165,10 @@ func DeleteSubjectById(g *gin.Context) {
 //	@Tags			Subject
 //	@Accept			json
 //
-//	@Param			subject_id		path	string	true	"Subject ID"
+//	@Param			subject_id	path	string	true	"Subject ID"
 //
 //	@Produce		json
-//	@Success		200	{object} model.Subject
+//	@Success		200	{object}	model.Subject
 //	@Router			/subject/{subject_id} [get]
 //
 // GetSubjectById retrieves a subject by its ID
@@ -221,11 +221,11 @@ func GetSubjectById(g *gin.Context) {
 //	@Tags			Subject
 //	@Accept			json
 //
-//	@Param			subject_id		path	string	true	"Subject ID"
-//	@Param			subject			body	model.Subject	true	"Subject object that needs to be updated"
+//	@Param			subject_id	path	string			true	"Subject ID"
+//	@Param			subject		body	model.Subject	true	"Subject object that needs to be updated"
 //
 //	@Produce		json
-//	@Success		200	{string} string "Subject updated successfully"
+//	@Success		200	{string}	string	"Subject updated successfully"
 //	@Router			/subject/{subject_id} [put]
 //
 // UpdateSubjectById retrieves a subject by its ID

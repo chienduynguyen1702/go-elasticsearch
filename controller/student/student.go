@@ -25,7 +25,7 @@ import (
 //	@Tags			Student
 //	@Accept			json
 //	@Produce		json
-//	@Success		200	{array} model.Student
+//	@Success		200	{array}	model.Student
 //	@Router			/student/ [get]
 func ListStudent(g *gin.Context) {
 	var students []model.Student
@@ -87,7 +87,7 @@ func ListStudent(g *gin.Context) {
 	g.JSON(http.StatusOK, students)
 }
 
-// @BasePath	/api/v1/
+//	@BasePath	/api/v1/
 //
 // Student godoc
 //
@@ -97,10 +97,10 @@ func ListStudent(g *gin.Context) {
 //	@Tags			Student
 //	@Accept			json
 //
-//	@Param			student_id		path	string	true	"Student ID"
+//	@Param			student_id	path	string	true	"Student ID"
 //
 //	@Produce		json
-//	@Success		200	{object} model.Student
+//	@Success		200	{object}	model.Student
 //	@Router			/student/{student_id} [get]
 func GetStudentById(g *gin.Context) {
 	studentID := g.Param("student_id")
@@ -170,18 +170,25 @@ func GetStudentById(g *gin.Context) {
 //	@Tags			Student
 //	@Accept			json
 //
-//	@Param			body		body	model.Student	true	"Student object"
+//	@Param			body	body	model.Student	true	"Student object"
 //
 //	@Produce		json
-//	@Success		200	{string} string "Student created successfully"
+//	@Success		200	{string}	string	"Student created successfully"
 //	@Router			/student/ [post]
 func CreateStudent(g *gin.Context) {
 	// get body of request
-	data, _ := g.GetRawData()
+	data, err := g.GetRawData()
+	if err != nil {
+		g.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 	// log.Println("data body:\n", string(data))
 
 	// Create a new Student
-	_, err := main.ElasticClient.Index(constraint.IndexNameOfStudent, bytes.NewReader(data))
+	_, err = main.ElasticClient.Index(
+		constraint.IndexNameOfStudent,
+		bytes.NewReader(data),
+	)
 
 	if err != nil {
 		g.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -201,10 +208,10 @@ func CreateStudent(g *gin.Context) {
 //	@Tags			Student
 //	@Accept			json
 //
-//	@Param			student_id		path	string	true	"Student ID"
+//	@Param			student_id	path	string	true	"Student ID"
 //
 //	@Produce		json
-//	@Success		200	{string} string "Student deleted successfully"
+//	@Success		200	{string}	string	"Student deleted successfully"
 //	@Router			/student/{student_id} [delete]
 func DeleteStudentById(g *gin.Context) {
 	studentID := g.Param("student_id")
@@ -240,11 +247,11 @@ func DeleteStudentById(g *gin.Context) {
 //	@Tags			Student
 //	@Accept			json
 //
-//	@Param			student_id		path	string	true	"Student ID"
-//	@Param			body			body	model.Student	true	"Student object"
+//	@Param			student_id	path	string			true	"Student ID"
+//	@Param			body		body	model.Student	true	"Student object"
 //
 //	@Produce		json
-//	@Success		200	{string} string "Student updated successfully"
+//	@Success		200	{string}	string	"Student updated successfully"
 //	@Router			/student/{student_id} [put]
 func UpdateStudentById(g *gin.Context) {
 	studentID := g.Param("student_id")
@@ -328,7 +335,7 @@ func getDocumentIDOfStudent(studentID string) (string, error) {
 	// Check if the response was successful (HTTP status 200)
 	if res.IsError() {
 		log.Println("Elasticsearch error: ", res.Status())
-		return "", fmt.Errorf("Elasticsearch error: %s", res.Status())
+		return "", fmt.Errorf("elasticsearch error: %s", res.Status())
 	}
 
 	// Decode the response body to get the student
@@ -340,7 +347,7 @@ func getDocumentIDOfStudent(studentID string) (string, error) {
 
 	hits := result["hits"].(map[string]interface{})["hits"].([]interface{})
 	if len(hits) == 0 {
-		return "", fmt.Errorf("Student not found")
+		return "", fmt.Errorf("student not found")
 	}
 
 	// Extract the document ID of the first hit

@@ -10,6 +10,11 @@ import (
 func SetupRouter(r *gin.RouterGroup) {
 	lecturer := r.Group("/lecturer")
 	{
-		lecturer.GET("/list", lc.ListLecturer)
+		lecturer.GET("/", lc.ListLecturer)
+		lecturer.POST("/", lc.CreateLecturer)
+
+		// lecturer.GET("/:lecturer_id", lc.GetLecturerById)
+		// lecturer.DELETE("/:lecturer_id", lc.DeleteLecturerById)
+		// lecturer.PUT("/:lecturer_id", lc.UpdateLecturerById)
 	}
 }

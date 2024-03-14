@@ -25,7 +25,7 @@ definitions:
 info:
   contact: {}
 paths:
-  /lecturer/list:
+  /lecturer:
     get:
       consumes:
       - application/json
@@ -39,6 +39,26 @@ paths:
             items:
               $ref: '#/definitions/model.Lecturer'
             type: array
+      tags:
+      - Lecturer
+    post:
+      consumes:
+      - application/json
+      description: Get all Lecturer
+      parameters:
+      - description: Lecturer information
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.Lecturer'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Lecturer created successfully
+          schema:
+            type: string
       tags:
       - Lecturer
   /student/:
