@@ -52,7 +52,7 @@ func Migration(es *elasticsearch.Client) {
 		"mappings": {
 			"properties": {
 				"students": {"type": "nested", "properties": {"student_id": {"type": "keyword"}, "student_name": {"type": "text"}}},
-				"subject": {"type": "nested", "properties": {"subject_id": {"type": "keyword"}, "subject_name": {"type": "text"}}},
+				"subjects": {"type": "nested", "properties": {"subject_id": {"type": "keyword"}, "subject_name": {"type": "text"}}},
 				"lecturers": {"type": "nested", "properties": {"lecturer_id": {"type": "keyword"}, "lecturer_name": {"type": "text"}}},
 				"midterm_grade": {"type": "float"},
 				"final_grade": {"type": "float"},

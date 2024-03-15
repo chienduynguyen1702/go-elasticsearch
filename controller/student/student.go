@@ -214,7 +214,7 @@ func GetStudentById(g *gin.Context) {
 //	@Tags			Student
 //	@Accept			json
 //
-//	@Param			document_id	path	string	true	"document_id of the student to be deleted"
+//	@Param			document_id	path	string			true	"document_id of the student to be deleted"
 //	@Param			student		body	model.Student	true	"Student object that needs to be updated"
 //
 //	@Produce		json

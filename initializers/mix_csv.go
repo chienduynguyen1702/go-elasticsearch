@@ -79,7 +79,7 @@ func generateEnroll(ListOfLecturer []model.Lecturer, ListOfStudent []model.Stude
 			for _, student := range shuffleStudents {
 				enroll := model.Enroll{
 					EnrollID:     fmt.Sprintf("ENR%d", time.Now().UnixNano()),
-					Subject:      subject,
+					Subjects:     subject,
 					Lecturers:    choosenLecturer,
 					Students:     student,
 					MidtermGrade: randomGrade(4, 10),

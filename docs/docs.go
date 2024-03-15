@@ -15,6 +15,70 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/enroll/": {
+            "post": {
+                "description": "Create a new enroll",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Enroll"
+                ],
+                "parameters": [
+                    {
+                        "description": "Enroll object that needs to be added",
+                        "name": "enroll",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.Enroll"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Enroll created successfully",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/enroll/{student_id}": {
+            "get": {
+                "description": "Get information about all enrolls which is in specified semester",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Enroll"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Search by student_id",
+                        "name": "student_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Enroll created successfully",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/lecturer/": {
             "get": {
                 "description": "Get all Lecturer",
@@ -479,6 +543,32 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "model.Enroll": {
+            "type": "object",
+            "properties": {
+                "enroll_id": {
+                    "type": "string"
+                },
+                "final_grade": {
+                    "type": "number"
+                },
+                "lecturers": {
+                    "$ref": "#/definitions/model.Lecturer"
+                },
+                "midterm_grade": {
+                    "type": "number"
+                },
+                "semester": {
+                    "type": "string"
+                },
+                "students": {
+                    "$ref": "#/definitions/model.Student"
+                },
+                "subjects": {
+                    "$ref": "#/definitions/model.Subject"
+                }
+            }
+        },
         "model.Lecturer": {
             "type": "object",
             "properties": {

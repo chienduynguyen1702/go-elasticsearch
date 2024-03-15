@@ -214,8 +214,8 @@ func GetLecturerById(g *gin.Context) {
 //	@Tags			Lecturer
 //	@Accept			json
 //
-//	@Param			document_id	path	string	true	"document_id of the lecturer to be deleted"
-//	@Param			lecturer		body	model.Lecturer	true	"Lecturer object that needs to be updated"
+//	@Param			document_id	path	string			true	"document_id of the lecturer to be deleted"
+//	@Param			lecturer	body	model.Lecturer	true	"Lecturer object that needs to be updated"
 //
 //	@Produce		json
 //	@Success		200	{string}	string	"Lecturer updated successfully"

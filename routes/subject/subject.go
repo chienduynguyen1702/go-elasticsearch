@@ -8,8 +8,6 @@ import (
 )
 
 func SetupRouter(r *gin.RouterGroup) {
-	// @BasePath /api/v1/subject
-	// Subject godoc
 	subject := r.Group("/subject")
 	{
 

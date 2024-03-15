@@ -11,12 +11,14 @@ import (
 
 func init() {
 	initializers.LoadEnvVariables()
-	es := initializers.NewConnection()
-	// initializers.Migration(es)
 	initializers.ConfigSwagger()
-	// initializers.SeedData(es)
 
-	controller.SetupElasticsearch(es)
+	TypedClientES := initializers.NewTypedClientConnection()
+	controller.SetupElasticsearch(TypedClientES)
+
+	// DefaultClientES := initializers.NewDefaultConnection()
+	// initializers.Migration(DefaultClientES)
+	// initializers.SeedData(DefaultClientES)
 }
 func main() {
 	r := routes.SetupRouter()

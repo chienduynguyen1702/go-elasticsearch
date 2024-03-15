@@ -214,7 +214,7 @@ func GetSubjectById(g *gin.Context) {
 //	@Tags			Subject
 //	@Accept			json
 //
-//	@Param			document_id	path	string	true	"document_id of the subject to be deleted"
+//	@Param			document_id	path	string			true	"document_id of the subject to be deleted"
 //	@Param			subject		body	model.Subject	true	"Subject object that needs to be updated"
 //
 //	@Produce		json

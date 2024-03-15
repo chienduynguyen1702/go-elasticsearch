@@ -1,4 +1,21 @@
 definitions:
+  model.Enroll:
+    properties:
+      enroll_id:
+        type: string
+      final_grade:
+        type: number
+      lecturers:
+        $ref: '#/definitions/model.Lecturer'
+      midterm_grade:
+        type: number
+      semester:
+        type: string
+      students:
+        $ref: '#/definitions/model.Student'
+      subjects:
+        $ref: '#/definitions/model.Subject'
+    type: object
   model.Lecturer:
     properties:
       lecturer_id:
@@ -25,6 +42,47 @@ definitions:
 info:
   contact: {}
 paths:
+  /enroll/:
+    post:
+      consumes:
+      - application/json
+      description: Create a new enroll
+      parameters:
+      - description: Enroll object that needs to be added
+        in: body
+        name: enroll
+        required: true
+        schema:
+          $ref: '#/definitions/model.Enroll'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Enroll created successfully
+          schema:
+            type: string
+      tags:
+      - Enroll
+  /enroll/{student_id}:
+    get:
+      consumes:
+      - application/json
+      description: Get information about all enrolls which is in specified semester
+      parameters:
+      - description: Search by student_id
+        in: path
+        name: student_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Enroll created successfully
+          schema:
+            type: string
+      tags:
+      - Enroll
   /lecturer/:
     get:
       consumes:

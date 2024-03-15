@@ -8,11 +8,8 @@ import (
 )
 
 func SetupRouter(r *gin.RouterGroup) {
-	// @BasePath /api/v1/student
-	// Student godoc
 	student := r.Group("/student")
 	{
-
 		student.GET("/", sc.ListStudent)
 		student.POST("/", sc.CreateStudent)
 
