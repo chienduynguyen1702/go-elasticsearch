@@ -182,12 +182,27 @@ func GetSubjectById(g *gin.Context) {
 		g.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	hit := res.Source_
-	log.Println(hit)
-
-	// Return the subject
-	g.JSON(http.StatusOK, hit)
+	// check if res got not_found
+	if res.Found {
+		var subj model.Subject
+		err = json.Unmarshal(res.Source_, &subj)
+		if err != nil {
+			log.Printf("ERROR: %s\n", err.Error()) // TODO: Proper error handling
+			g.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse response data"})
+		} else {
+			g.JSON(http.StatusOK, subj)
+		}
+	} else {
+		g.JSON(http.StatusNotFound, gin.H{"error": "No such subject found"})
+	}
 }
+
+// 	hit := res.Source_
+// 	log.Println(hit)
+
+// 	// Return the subject
+// 	g.JSON(http.StatusOK, hit)
+// }
 
 //	@BasePath	/api/v1/
 //
@@ -204,7 +219,7 @@ func GetSubjectById(g *gin.Context) {
 //
 //	@Produce		json
 //	@Success		200	{string}	string	"Subject updated successfully"
-//	@Router			/subject/{subject_id} [put]
+//	@Router			/subject/{document_id} [put]
 //
 // UpdateSubjectById retrieves a subject by its ID
 func UpdateSubjectById(g *gin.Context) {
@@ -215,7 +230,7 @@ func UpdateSubjectById(g *gin.Context) {
 	}
 	data, _ := g.GetRawData()
 	// Assuming the request body contains valid JSON data representing the subject
-	_, err := main.ElasticClient.Update(constraint.IndexNameOfSubject, documentID).
+	res, err := main.ElasticClient.Update(constraint.IndexNameOfSubject, documentID).
 		Request(&update.Request{
 			Doc: json.RawMessage(data),
 		}).Do(context.TODO())
@@ -226,33 +241,17 @@ func UpdateSubjectById(g *gin.Context) {
 		return
 	}
 
-	g.JSON(http.StatusOK, "Subject updated successfully")
+	if res.Result == result.Notfound {
+		g.JSON(http.StatusNotFound, gin.H{"error": "No such document found"})
+		return
+	} else if res.Result == result.Updated {
+
+		g.JSON(http.StatusOK, gin.H{"message": "Subject updated successfully"})
+		return
+	} else if res.Result == result.Noop {
+		g.JSON(http.StatusConflict, gin.H{"error": "Version conflict, please try again."})
+		return
+	}
+
+	g.JSON(http.StatusInternalServerError, gin.H{"error": "Unknown result from Elasticsearch"})
 }
-
-// // getDocumentIDOfSubject retrieves the document ID of the subject based on the subject ID
-// func getDocumentIDOfSubject(subjectID string) (string, error) {
-// 	// var subjects []model.Subject
-
-// 	res, err := main.ElasticClient.Search().
-// 		Index(constraint.IndexNameOfSubject).
-// 		Request(&search.Request{
-// 			Size: &constraint.QuerySize,
-// 			Query: &types.Query{
-// 				Match: map[string]types.MatchQuery{
-// 					"subject_id": {Query: subjectID},
-// 				},
-// 			},
-// 		}).Do(context.Background())
-
-// 	if err != nil {
-// 		return "", fmt.Errorf("get documentID error")
-// 	}
-
-// 	// Access the hits from the response
-// 	hits := res.Hits.Hits
-// 	if len(hits) == 0 {
-// 		return "", fmt.Errorf("subject not found")
-// 	}
-
-// 	return hits[0].Id_, nil
-// }

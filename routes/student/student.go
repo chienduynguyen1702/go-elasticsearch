@@ -1,21 +1,23 @@
 // routes/student/student.go
 package student
 
-// import (
-// 	"github.com/gin-gonic/gin"
-// )
+import (
+	sc "vcs_backend/go-elasticsearch/controller/student"
 
-// func SetupRouter(r *gin.RouterGroup) {
-// 	// @BasePath /api/v1/student
-// 	// Student godoc
-// 	student := r.Group("/student")
-// 	{
+	"github.com/gin-gonic/gin"
+)
 
-// 		student.GET("/", sc.ListStudent)
-// 		student.POST("/", sc.CreateStudent)
+func SetupRouter(r *gin.RouterGroup) {
+	// @BasePath /api/v1/student
+	// Student godoc
+	student := r.Group("/student")
+	{
 
-// 		student.GET("/:student_id", sc.GetStudentById)
-// 		student.DELETE("/:student_id", sc.DeleteStudentById)
-// 		student.PUT("/:student_id", sc.UpdateStudentById)
-// 	}
-// }
+		student.GET("/", sc.ListStudent)
+		student.POST("/", sc.CreateStudent)
+
+		student.GET("/:document_id", sc.GetStudentById)
+		student.DELETE("/:document_id", sc.DeleteStudentById)
+		student.PUT("/:document_id", sc.UpdateStudentById)
+	}
+}

@@ -1,4 +1,20 @@
 definitions:
+  model.Lecturer:
+    properties:
+      lecturer_id:
+        type: string
+      lecturer_name:
+        type: string
+    type: object
+  model.Student:
+    properties:
+      student_id:
+        type: string
+      student_name:
+        type: string
+      year_started:
+        type: integer
+    type: object
   model.Subject:
     properties:
       subject_id:
@@ -9,6 +25,206 @@ definitions:
 info:
   contact: {}
 paths:
+  /lecturer/:
+    get:
+      consumes:
+      - application/json
+      description: Get all Lecturer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Lecturer'
+            type: array
+      tags:
+      - Lecturer
+    post:
+      consumes:
+      - application/json
+      description: Create a new lecturer
+      parameters:
+      - description: Lecturer object that needs to be added
+        in: body
+        name: lecturer
+        required: true
+        schema:
+          $ref: '#/definitions/model.Lecturer'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Lecturer created successfully
+          schema:
+            type: string
+      tags:
+      - Lecturer
+  /lecturer/{document_id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete lecturer by ID
+      parameters:
+      - description: document_id of the lecturer to be deleted
+        in: path
+        name: document_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Lecturer deleted successfully
+          schema:
+            type: string
+      tags:
+      - Lecturer
+    get:
+      consumes:
+      - application/json
+      description: Get lecturer by ID
+      parameters:
+      - description: document_id of the lecturer to be deleted
+        in: path
+        name: document_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Lecturer'
+      tags:
+      - Lecturer
+    put:
+      consumes:
+      - application/json
+      description: Update lecturer by ID
+      parameters:
+      - description: document_id of the lecturer to be deleted
+        in: path
+        name: document_id
+        required: true
+        type: string
+      - description: Lecturer object that needs to be updated
+        in: body
+        name: lecturer
+        required: true
+        schema:
+          $ref: '#/definitions/model.Lecturer'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Lecturer updated successfully
+          schema:
+            type: string
+      tags:
+      - Lecturer
+  /student/:
+    get:
+      consumes:
+      - application/json
+      description: Get all Student
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Student'
+            type: array
+      tags:
+      - Student
+    post:
+      consumes:
+      - application/json
+      description: Create a new student
+      parameters:
+      - description: Student object that needs to be added
+        in: body
+        name: student
+        required: true
+        schema:
+          $ref: '#/definitions/model.Student'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Student created successfully
+          schema:
+            type: string
+      tags:
+      - Student
+  /student/{document_id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete student by ID
+      parameters:
+      - description: document_id of the student to be deleted
+        in: path
+        name: document_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Student deleted successfully
+          schema:
+            type: string
+      tags:
+      - Student
+    get:
+      consumes:
+      - application/json
+      description: Get student by ID
+      parameters:
+      - description: document_id of the student to be deleted
+        in: path
+        name: document_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Student'
+      tags:
+      - Student
+    put:
+      consumes:
+      - application/json
+      description: Update student by ID
+      parameters:
+      - description: document_id of the student to be deleted
+        in: path
+        name: document_id
+        required: true
+        type: string
+      - description: Student object that needs to be updated
+        in: body
+        name: student
+        required: true
+        schema:
+          $ref: '#/definitions/model.Student'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Student updated successfully
+          schema:
+            type: string
+      tags:
+      - Student
   /subject/:
     get:
       consumes:
@@ -84,7 +300,6 @@ paths:
             $ref: '#/definitions/model.Subject'
       tags:
       - Subject
-  /subject/{subject_id}:
     put:
       consumes:
       - application/json
