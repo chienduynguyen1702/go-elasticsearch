@@ -1,20 +1,4 @@
 definitions:
-  model.Lecturer:
-    properties:
-      lecturer_id:
-        type: string
-      lecturer_name:
-        type: string
-    type: object
-  model.Student:
-    properties:
-      student_id:
-        type: string
-      student_name:
-        type: string
-      year_started:
-        type: integer
-    type: object
   model.Subject:
     properties:
       subject_id:
@@ -25,142 +9,6 @@ definitions:
 info:
   contact: {}
 paths:
-  /lecturer:
-    get:
-      consumes:
-      - application/json
-      description: Get all Lecturer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/model.Lecturer'
-            type: array
-      tags:
-      - Lecturer
-    post:
-      consumes:
-      - application/json
-      description: Get all Lecturer
-      parameters:
-      - description: Lecturer information
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/model.Lecturer'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Lecturer created successfully
-          schema:
-            type: string
-      tags:
-      - Lecturer
-  /student/:
-    get:
-      consumes:
-      - application/json
-      description: Get all students
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/model.Student'
-            type: array
-      tags:
-      - Student
-    post:
-      consumes:
-      - application/json
-      description: Create a new student
-      parameters:
-      - description: Student object
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/model.Student'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Student created successfully
-          schema:
-            type: string
-      tags:
-      - Student
-  /student/{student_id}:
-    delete:
-      consumes:
-      - application/json
-      description: Delete student by ID
-      parameters:
-      - description: Student ID
-        in: path
-        name: student_id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Student deleted successfully
-          schema:
-            type: string
-      tags:
-      - Student
-    get:
-      consumes:
-      - application/json
-      description: Get student by ID
-      parameters:
-      - description: Student ID
-        in: path
-        name: student_id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/model.Student'
-      tags:
-      - Student
-    put:
-      consumes:
-      - application/json
-      description: Update student by ID
-      parameters:
-      - description: Student ID
-        in: path
-        name: student_id
-        required: true
-        type: string
-      - description: Student object
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/model.Student'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Student updated successfully
-          schema:
-            type: string
-      tags:
-      - Student
   /subject/:
     get:
       consumes:
@@ -197,15 +45,15 @@ paths:
             type: string
       tags:
       - Subject
-  /subject/{subject_id}:
+  /subject/{document_id}:
     delete:
       consumes:
       - application/json
       description: Delete subject by ID
       parameters:
-      - description: Subject ID
+      - description: document_id of the subject to be deleted
         in: path
-        name: subject_id
+        name: document_id
         required: true
         type: string
       produces:
@@ -222,9 +70,9 @@ paths:
       - application/json
       description: Get subject by ID
       parameters:
-      - description: Subject ID
+      - description: document_id of the subject to be deleted
         in: path
-        name: subject_id
+        name: document_id
         required: true
         type: string
       produces:
@@ -236,14 +84,15 @@ paths:
             $ref: '#/definitions/model.Subject'
       tags:
       - Subject
+  /subject/{subject_id}:
     put:
       consumes:
       - application/json
       description: Update subject by ID
       parameters:
-      - description: Subject ID
+      - description: document_id of the subject to be deleted
         in: path
-        name: subject_id
+        name: document_id
         required: true
         type: string
       - description: Subject object that needs to be updated

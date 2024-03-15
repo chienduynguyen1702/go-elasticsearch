@@ -15,216 +15,6 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/lecturer": {
-            "get": {
-                "description": "Get all Lecturer",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Lecturer"
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/model.Lecturer"
-                            }
-                        }
-                    }
-                }
-            },
-            "post": {
-                "description": "Get all Lecturer",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Lecturer"
-                ],
-                "parameters": [
-                    {
-                        "description": "Lecturer information",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/model.Lecturer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Lecturer created successfully",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/student/": {
-            "get": {
-                "description": "Get all students",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Student"
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/model.Student"
-                            }
-                        }
-                    }
-                }
-            },
-            "post": {
-                "description": "Create a new student",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Student"
-                ],
-                "parameters": [
-                    {
-                        "description": "Student object",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/model.Student"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Student created successfully",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/student/{student_id}": {
-            "get": {
-                "description": "Get student by ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Student"
-                ],
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Student ID",
-                        "name": "student_id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/model.Student"
-                        }
-                    }
-                }
-            },
-            "put": {
-                "description": "Update student by ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Student"
-                ],
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Student ID",
-                        "name": "student_id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Student object",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/model.Student"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Student updated successfully",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "description": "Delete student by ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Student"
-                ],
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Student ID",
-                        "name": "student_id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Student deleted successfully",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
         "/subject/": {
             "get": {
                 "description": "Get all Subject",
@@ -281,7 +71,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/subject/{subject_id}": {
+        "/subject/{document_id}": {
             "get": {
                 "description": "Get subject by ID",
                 "consumes": [
@@ -296,8 +86,8 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Subject ID",
-                        "name": "subject_id",
+                        "description": "document_id of the subject to be deleted",
+                        "name": "document_id",
                         "in": "path",
                         "required": true
                     }
@@ -311,6 +101,37 @@ const docTemplate = `{
                     }
                 }
             },
+            "delete": {
+                "description": "Delete subject by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Subject"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "document_id of the subject to be deleted",
+                        "name": "document_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Subject deleted successfully",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/subject/{subject_id}": {
             "put": {
                 "description": "Update subject by ID",
                 "consumes": [
@@ -325,8 +146,8 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Subject ID",
-                        "name": "subject_id",
+                        "description": "document_id of the subject to be deleted",
+                        "name": "document_id",
                         "in": "path",
                         "required": true
                     },
@@ -348,64 +169,10 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
-            "delete": {
-                "description": "Delete subject by ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Subject"
-                ],
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Subject ID",
-                        "name": "subject_id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Subject deleted successfully",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
             }
         }
     },
     "definitions": {
-        "model.Lecturer": {
-            "type": "object",
-            "properties": {
-                "lecturer_id": {
-                    "type": "string"
-                },
-                "lecturer_name": {
-                    "type": "string"
-                }
-            }
-        },
-        "model.Student": {
-            "type": "object",
-            "properties": {
-                "student_id": {
-                    "type": "string"
-                },
-                "student_name": {
-                    "type": "string"
-                },
-                "year_started": {
-                    "type": "integer"
-                }
-            }
-        },
         "model.Subject": {
             "type": "object",
             "properties": {

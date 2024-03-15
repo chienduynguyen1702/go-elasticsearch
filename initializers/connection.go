@@ -9,7 +9,7 @@ import (
 )
 
 // create a new connection to elasticsearch
-func NewConnection() *elasticsearch.Client {
+func NewConnection() *elasticsearch.TypedClient {
 
 	// Es config
 	cfg := elasticsearch.Config{
@@ -24,7 +24,7 @@ func NewConnection() *elasticsearch.Client {
 	}
 
 	// Connect to Elasticsearch
-	es, err := elasticsearch.NewClient(cfg)
+	es, err := elasticsearch.NewTypedClient(cfg)
 	if err != nil {
 		log.Fatalf("Error creating the Elasticsearch client: %s", err)
 	}

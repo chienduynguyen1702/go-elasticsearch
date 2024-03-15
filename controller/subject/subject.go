@@ -7,12 +7,15 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"strings"
 
 	"vcs_backend/go-elasticsearch/constraint"
 	main "vcs_backend/go-elasticsearch/controller"
 	"vcs_backend/go-elasticsearch/model"
 
+	"github.com/elastic/go-elasticsearch/v8/typedapi/core/search"
+	"github.com/elastic/go-elasticsearch/v8/typedapi/core/update"
+	"github.com/elastic/go-elasticsearch/v8/typedapi/types"
+	"github.com/elastic/go-elasticsearch/v8/typedapi/types/enums/result"
 	"github.com/gin-gonic/gin"
 )
 
@@ -31,60 +34,35 @@ import (
 func ListSubject(g *gin.Context) {
 	var subjects []model.Subject
 
-	query := fmt.Sprintf(`{
-		"size": %d,
-		"query": {
-			"match_all": {}
-		}
-	}`, constraint.QuerySize)
-	res, err := main.ElasticClient.Search(
-		main.ElasticClient.Search.WithIndex(constraint.IndexNameOfSubject),
-		main.ElasticClient.Search.WithBody(strings.NewReader(query)),
-	)
+	res, err := main.ElasticClient.Search().
+		Index(constraint.IndexNameOfSubject).
+		Request(&search.Request{
+			Size: &constraint.QuerySize,
+			Query: &types.Query{
+				MatchAll: &types.MatchAllQuery{}},
+		}).
+		Do(context.TODO())
 
 	if err != nil {
-		g.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-	defer res.Body.Close()
-
-	// Check if the response was successful (HTTP status 200)
-	if res.IsError() {
-		g.JSON(res.StatusCode, gin.H{"error": res.Status()})
+		g.JSON(http.StatusInternalServerError, gin.H{"Search error": err.Error()})
 		return
 	}
 
-	// Decode the response body into a map
-	var result map[string]interface{}
-	if err := json.NewDecoder(res.Body).Decode(&result); err != nil {
+	// Access the hits from the response
+	hits := res.Hits.Hits
 
-		g.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	// Extract hits from the result
-	hits, ok := result["hits"].(map[string]interface{})["hits"].([]interface{})
-	if !ok {
-		g.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid response"})
-		return
-	}
-
-	// Iterate over hits and decode them into a Subject
+	// Iterate over the hits and extract the source data
 	for _, hit := range hits {
-
-		source, ok := hit.(map[string]interface{})["_source"].(map[string]interface{})
-		if !ok {
-			g.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse _source"})
+		var subject model.Subject
+		err := json.Unmarshal(hit.Source_, &subject)
+		if err != nil {
+			g.JSON(http.StatusInternalServerError, gin.H{"Decode error": err.Error()})
 			return
-		}
-
-		subject := model.Subject{
-			SubjectID:   source["subject_id"].(string),
-			SubjectName: source["subject_name"].(string),
 		}
 		subjects = append(subjects, subject)
 	}
 
+	// Return the list of subjects
 	g.JSON(http.StatusOK, subjects)
 }
 
@@ -104,16 +82,30 @@ func ListSubject(g *gin.Context) {
 //	@Success		200	{string}	string	"Subject created successfully"
 //	@Router			/subject/ [post]
 func CreateSubject(g *gin.Context) {
-	// get body of request
 	data, _ := g.GetRawData()
+	// Assuming the request body contains valid JSON data representing the subject
+	var subject map[string]interface{} // Create an empty map to store the subject data
 
-	_, err := main.ElasticClient.Index(constraint.IndexNameOfSubject, bytes.NewReader(data))
+	// Unmarshal the request body data into the subject map
+	err := json.Unmarshal(data, &subject)
 	if err != nil {
-		g.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		// Handle unmarshalling errors appropriately (e.g., return a bad request error)
+		g.JSON(http.StatusBadRequest, gin.H{"error": "Invalid subject data format"})
 		return
 	}
 
-	g.JSON(http.StatusCreated, "Subject created successfully")
+	// Index the subject using the unmarshaled map
+	_, err = main.ElasticClient.Index(constraint.IndexNameOfSubject).
+		Id(fmt.Sprintf("%v", subject["subject_id"])). // Use the subject_id as the document ID
+		Raw(bytes.NewReader(data)).
+		Do(context.Background())
+
+	if err != nil {
+		// Handle indexing errors (e.g., log the error and return an internal server error)
+		g.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	g.JSON(http.StatusOK, "Subject created successfully")
 }
 
 //	@BasePath	/api/v1/
@@ -126,33 +118,38 @@ func CreateSubject(g *gin.Context) {
 //	@Tags			Subject
 //	@Accept			json
 //
-//	@Param			subject_id	path	string	true	"Subject ID"
+//	@Param			document_id	path	string	true	"document_id of the subject to be deleted"
 //
 //	@Produce		json
 //	@Success		200	{string}	string	"Subject deleted successfully"
-//	@Router			/subject/{subject_id} [delete]
+//	@Router			/subject/{document_id} [delete]
 func DeleteSubjectById(g *gin.Context) {
-	subjectID := g.Param("subject_id")
-	if subjectID == "" {
-		g.JSON(http.StatusBadRequest, gin.H{"error": "Subject ID is required"})
+	documentID := g.Param("document_id")
+	if documentID == "" {
+		g.JSON(http.StatusBadRequest, gin.H{"error": "document_id is required"})
 		return
 	}
-
-	// Get document ID of the subject
-	documentID, err := getDocumentIDOfSubject(subjectID)
-	if err != nil {
-		g.JSON(http.StatusNotFound, gin.H{"error": "Subject not found"})
-		return
-	}
-
+	log.Println("documentID: ", documentID)
 	// Delete the subject document
-	_, err = main.ElasticClient.Delete(constraint.IndexNameOfSubject, documentID)
+	res, err := main.ElasticClient.Delete(constraint.IndexNameOfSubject, documentID).Do(context.TODO())
 	if err != nil {
 		g.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+	// Check if the document was successfully deleted
+	if res.Result == result.Deleted {
+		g.JSON(http.StatusOK, gin.H{"message": "Subject deleted successfully"})
+		return
+	}
 
-	g.JSON(http.StatusOK, "Subject deleted successfully")
+	// Handle cases where the document was not found or the operation was a no-op
+	if res.Result == result.Notfound || res.Result == result.Noop {
+		g.JSON(http.StatusNotFound, gin.H{"error": fmt.Sprintf("documentID %s not found or no action taken", documentID)})
+		return
+	}
+
+	// Handle other cases where the result is unexpected
+	g.JSON(http.StatusInternalServerError, gin.H{"error": "Unexpected result from delete operation"})
 }
 
 //	@BasePath	/api/v1/
@@ -165,50 +162,31 @@ func DeleteSubjectById(g *gin.Context) {
 //	@Tags			Subject
 //	@Accept			json
 //
-//	@Param			subject_id	path	string	true	"Subject ID"
+//	@Param			document_id	path	string	true	"document_id of the subject to be deleted"
 //
 //	@Produce		json
 //	@Success		200	{object}	model.Subject
-//	@Router			/subject/{subject_id} [get]
+//	@Router			/subject/{document_id} [get]
 //
 // GetSubjectById retrieves a subject by its ID
 func GetSubjectById(g *gin.Context) {
-	subjectID := g.Param("subject_id")
-	if subjectID == "" {
-		g.JSON(http.StatusBadRequest, gin.H{"error": "Subject ID is required"})
+	documentID := g.Param("document_id")
+	if documentID == "" {
+		g.JSON(http.StatusBadRequest, gin.H{"error": "Document ID is required"})
 		return
 	}
 
-	// Get document ID of the subject
-	documentID, err := getDocumentIDOfSubject(subjectID)
-	if err != nil {
-		g.JSON(http.StatusNotFound, gin.H{"error": "Subject not found"})
-		return
-	}
-
-	// Fetch the subject document from Elasticsearch
-	res, err := main.ElasticClient.Get(constraint.IndexNameOfSubject, documentID)
+	// Fetch the subject document from Elasticsearch with the specified document ID
+	res, err := main.ElasticClient.Get(constraint.IndexNameOfSubject, documentID).Do(context.Background())
 	if err != nil {
 		g.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	defer res.Body.Close()
-
-	// Check if the response was successful (HTTP status 200)
-	if res.IsError() {
-		g.JSON(res.StatusCode, gin.H{"error": res.Status()})
-		return
-	}
-
-	// Decode the response body into a Subject
-	var subject model.Subject
-	if err := json.NewDecoder(res.Body).Decode(&subject); err != nil {
-		g.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
+	hit := res.Source_
+	log.Println(hit)
 
 	// Return the subject
-	g.JSON(http.StatusOK, subject)
+	g.JSON(http.StatusOK, hit)
 }
 
 //	@BasePath	/api/v1/
@@ -221,7 +199,7 @@ func GetSubjectById(g *gin.Context) {
 //	@Tags			Subject
 //	@Accept			json
 //
-//	@Param			subject_id	path	string			true	"Subject ID"
+//	@Param			document_id	path	string	true	"document_id of the subject to be deleted"
 //	@Param			subject		body	model.Subject	true	"Subject object that needs to be updated"
 //
 //	@Produce		json
@@ -230,50 +208,17 @@ func GetSubjectById(g *gin.Context) {
 //
 // UpdateSubjectById retrieves a subject by its ID
 func UpdateSubjectById(g *gin.Context) {
-	subjectID := g.Param("subject_id")
-	if subjectID == "" {
-		g.JSON(http.StatusBadRequest, gin.H{"error": "Subject ID is required"})
+	documentID := g.Param("document_id")
+	if documentID == "" {
+		g.JSON(http.StatusBadRequest, gin.H{"error": "Document ID is required"})
 		return
 	}
-
-	// Parse request body
-	var requestBody map[string]interface{}
-	if err := g.BindJSON(&requestBody); err != nil {
-		g.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request payload"})
-		return
-	}
-
-	// Extract subject_name from request body
-	subjectName, ok := requestBody["subject_name"].(string)
-	if !ok {
-		g.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request payload : subject_name is required"})
-		return
-	}
-	// Get document ID of the subject
-	documentID, err := getDocumentIDOfSubject(subjectID)
-	if err != nil {
-		g.JSON(http.StatusNotFound, gin.H{"error": "Subject not found"})
-		return
-	}
-
-	// Update the subject document
-	script := fmt.Sprintf(`{
-		"script": {
-			"source": "ctx._source.subject_name = '%s'",
-			"lang": "painless",
-			"params": {
-				"subject_name": "%s"
-			}
-		}
-	}`, subjectName, subjectName)
-
-	_, err = main.ElasticClient.Update(
-		constraint.IndexNameOfSubject,
-		documentID,
-		strings.NewReader(script),
-		main.ElasticClient.Update.WithContext(context.Background()), // Context should be provided
-		main.ElasticClient.Update.WithRetryOnConflict(3),
-	)
+	data, _ := g.GetRawData()
+	// Assuming the request body contains valid JSON data representing the subject
+	_, err := main.ElasticClient.Update(constraint.IndexNameOfSubject, documentID).
+		Request(&update.Request{
+			Doc: json.RawMessage(data),
+		}).Do(context.TODO())
 
 	if err != nil {
 		g.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -284,46 +229,30 @@ func UpdateSubjectById(g *gin.Context) {
 	g.JSON(http.StatusOK, "Subject updated successfully")
 }
 
-// getDocumentIDOfSubject retrieves the document ID of the subject based on the subject ID
-func getDocumentIDOfSubject(subjectID string) (string, error) {
-	query := fmt.Sprintf(`{
-		"query": {
-			"match": {
-				"subject_id": "%s"
-			}
-		}
-	}`, subjectID)
+// // getDocumentIDOfSubject retrieves the document ID of the subject based on the subject ID
+// func getDocumentIDOfSubject(subjectID string) (string, error) {
+// 	// var subjects []model.Subject
 
-	res, err := main.ElasticClient.Search(
-		main.ElasticClient.Search.WithIndex(constraint.IndexNameOfSubject),
-		main.ElasticClient.Search.WithBody(strings.NewReader(query)),
-	)
-	if err != nil {
-		return "", err
-	}
-	defer res.Body.Close()
+// 	res, err := main.ElasticClient.Search().
+// 		Index(constraint.IndexNameOfSubject).
+// 		Request(&search.Request{
+// 			Size: &constraint.QuerySize,
+// 			Query: &types.Query{
+// 				Match: map[string]types.MatchQuery{
+// 					"subject_id": {Query: subjectID},
+// 				},
+// 			},
+// 		}).Do(context.Background())
 
-	// Check if the response was successful (HTTP status 200)
-	if res.IsError() {
-		return "", fmt.Errorf("failed to search document ID of the subject: %s", res.Status())
-	}
+// 	if err != nil {
+// 		return "", fmt.Errorf("get documentID error")
+// 	}
 
-	// Decode the response body into a map
-	var result map[string]interface{}
-	if err := json.NewDecoder(res.Body).Decode(&result); err != nil {
-		return "", err
-	}
+// 	// Access the hits from the response
+// 	hits := res.Hits.Hits
+// 	if len(hits) == 0 {
+// 		return "", fmt.Errorf("subject not found")
+// 	}
 
-	// Extract hits from the result
-	hits, ok := result["hits"].(map[string]interface{})["hits"].([]interface{})
-	if !ok {
-		return "", fmt.Errorf("invalid response")
-	}
-
-	// Iterate over hits and decode them into a Subject
-	for _, hit := range hits {
-		return hit.(map[string]interface{})["_id"].(string), nil
-	}
-
-	return "", fmt.Errorf("subject not found")
-}
+// 	return hits[0].Id_, nil
+// }

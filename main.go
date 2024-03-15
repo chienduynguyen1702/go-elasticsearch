@@ -12,7 +12,7 @@ import (
 func init() {
 	initializers.LoadEnvVariables()
 	es := initializers.NewConnection()
-	initializers.Migration(es)
+	// initializers.Migration(es)
 	initializers.ConfigSwagger()
 	// initializers.SeedData(es)
 

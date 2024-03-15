@@ -4,9 +4,6 @@ package routes
 
 import (
 	"os"
-	"vcs_backend/go-elasticsearch/routes/enroll"
-	"vcs_backend/go-elasticsearch/routes/lecturer"
-	"vcs_backend/go-elasticsearch/routes/student"
 	"vcs_backend/go-elasticsearch/routes/subject"
 
 	swaggerfiles "github.com/swaggo/files"
@@ -25,9 +22,9 @@ func SetupRouter() *gin.Engine {
 
 	v1 := r.Group("/api/v1")
 	{
-		enroll.SetupRouter(v1)
-		lecturer.SetupRouter(v1)
-		student.SetupRouter(v1)
+		// enroll.SetupRouter(v1)
+		// lecturer.SetupRouter(v1)
+		// student.SetupRouter(v1)
 		subject.SetupRouter(v1)
 	}
 

@@ -5,10 +5,10 @@ import (
 )
 
 var (
-	ElasticClient *elasticsearch.Client
+	ElasticClient *elasticsearch.TypedClient
 )
 
-func SetupElasticsearch(es *elasticsearch.Client) {
+func SetupElasticsearch(es *elasticsearch.TypedClient) {
 	ElasticClient = es
 }
 
